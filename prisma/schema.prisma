@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Modalidade {
+  FUTEBOL_CAMPO
+  FUTSAL
+  BEACH_SOCCER
+  VOLEI
+  SOCIETY
+  BASQUETE
+}
+
+model Equipe {
+  id         String     @id @default(cuid())
+  nome       String
+  escudoUrl  String?
+  modalidade Modalidade
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
