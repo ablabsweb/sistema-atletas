@@ -19,10 +19,49 @@ enum Modalidade {
 }
 
 model Equipe {
-  id         String     @id @default(cuid())
+  id         String      @id @default(cuid())
   nome       String
   escudoUrl  String?
   modalidade Modalidade
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  categorias Categoria[]
+  atletas    Atleta[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+enum StatusAtleta {
+  ATIVO
+  PENDURADO
+  SUSPENSO
+  LESIONADO
+  INATIVO
+}
+
+model Categoria {
+  id        String   @id @default(cuid())
+  nome      String   // ex: Sub-15, Sub-17, Livre
+  equipeId  String
+  equipe    Equipe   @relation(fields: [equipeId], references: [id])
+  atletas   Atleta[]
+  createdAt DateTime @default(now())
+
+  @@unique([equipeId, nome])
+}
+
+model Atleta {
+  id          String       @id @default(cuid())
+  nome        String
+  fotoUrl     String?
+  posicao     String
+  dataNasc    DateTime
+  altura      Float?
+  peso        Float?
+  numero      Int?
+  status      StatusAtleta @default(ATIVO)
+  equipeId    String
+  equipe      Equipe       @relation(fields: [equipeId], references: [id])
+  categoriaId String
+  categoria   Categoria    @relation(fields: [categoriaId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
