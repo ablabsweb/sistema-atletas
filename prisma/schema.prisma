@@ -25,6 +25,8 @@ model Equipe {
   modalidade Modalidade
   categorias Categoria[]
   atletas    Atleta[]
+  competicoes Competicao[]
+  jogos      Jogo[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 }
@@ -38,12 +40,14 @@ enum StatusAtleta {
 }
 
 model Categoria {
-  id        String   @id @default(cuid())
-  nome      String   // ex: Sub-15, Sub-17, Livre
-  equipeId  String
-  equipe    Equipe   @relation(fields: [equipeId], references: [id])
-  atletas   Atleta[]
-  createdAt DateTime @default(now())
+  id          String       @id @default(cuid())
+  nome        String
+  equipeId    String
+  equipe      Equipe       @relation(fields: [equipeId], references: [id])
+  atletas     Atleta[]
+  competicoes Competicao[]
+  jogos       Jogo[]
+  createdAt   DateTime     @default(now())
 
   @@unique([equipeId, nome])
 }
@@ -62,6 +66,77 @@ model Atleta {
   equipe      Equipe       @relation(fields: [equipeId], references: [id])
   categoriaId String
   categoria   Categoria    @relation(fields: [categoriaId], references: [id])
+  eventos     EventoJogo[]
+  escalacoes  Escalacao[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+}
+
+enum StatusJogo {
+  AGENDADO
+  EM_ANDAMENTO
+  FINALIZADO
+  ADIADO
+}
+
+enum TipoEvento {
+  GOL
+  CARTAO_AMARELO
+  CARTAO_VERMELHO
+  SUBSTITUICAO
+}
+
+model Competicao {
+  id          String      @id @default(cuid())
+  nome        String
+  equipeId    String
+  equipe      Equipe      @relation(fields: [equipeId], references: [id])
+  categoriaId String
+  categoria   Categoria   @relation(fields: [categoriaId], references: [id])
+  inicio      DateTime?
+  fim         DateTime?
+  jogos       Jogo[]
+  createdAt   DateTime    @default(now())
+}
+
+model Jogo {
+  id             String       @id @default(cuid())
+  data           DateTime
+  status         StatusJogo   @default(AGENDADO)
+  competicaoId   String
+  competicao     Competicao   @relation(fields: [competicaoId], references: [id])
+  equipeId       String
+  equipe         Equipe       @relation(fields: [equipeId], references: [id])
+  categoriaId    String
+  categoria      Categoria    @relation(fields: [categoriaId], references: [id])
+  adversario     String
+  mandante       Boolean      @default(true)
+  golsNos        Int?
+  golsAdversario Int?
+  eventos        EventoJogo[]
+  escalacoes     Escalacao[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Escalacao {
+  id             String @id @default(cuid())
+  jogoId         String
+  jogo           Jogo   @relation(fields: [jogoId], references: [id])
+  atletaId       String
+  atleta         Atleta @relation(fields: [atletaId], references: [id])
+  titular        Boolean @default(true)
+  minutosJogados Int     @default(0)
+
+  @@unique([jogoId, atletaId])
+}
+
+model EventoJogo {
+  id       String     @id @default(cuid())
+  jogoId   String
+  jogo     Jogo       @relation(fields: [jogoId], references: [id])
+  atletaId String
+  atleta   Atleta     @relation(fields: [atletaId], references: [id])
+  tipo     TipoEvento
+  minuto   Int
 }
