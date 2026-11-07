@@ -12,6 +12,8 @@ import {
   CircleDashed,
 } from "lucide-react";
 
+export const instant = false;
+
 export default async function DashboardPage() {
   const [totalEquipes, totalAtletas, atletasPendurados, atletasSuspensos] =
     await Promise.all([
